@@ -1,0 +1,66 @@
+{
+  "team_name": "Codex Development Team",
+  "version": "1.0.0",
+  "description": "Codex 智能开发团队，负责代码审查、开发、测试和部署",
+  "agents": [
+    {
+      "id": "architect",
+      "name": "系统架构师",
+      "role": "system_architect",
+      "model": "gpt-5.3-codex-high",
+      "responsibilities": [
+        "系统架构设计",
+        "技术选型",
+        "代码审查",
+        "性能优化建议"
+      ]
+    },
+    {
+      "id": "developer",
+      "name": "高级开发工程师",
+      "role": "senior_developer",
+      "model": "gpt-5.3-codex",
+      "responsibilities": [
+        "代码实现",
+        "功能开发",
+        "Bug 修复",
+        "代码重构"
+      ]
+    },
+    {
+      "id": "tester",
+      "name": "测试工程师",
+      "role": "qa_engineer",
+      "model": "gpt-5.3-codex",
+      "responsibilities": [
+        "单元测试编写",
+        "集成测试",
+        "性能测试",
+        "质量保障"
+      ]
+    },
+    {
+      "id": "devops",
+      "name": "DevOps 工程师",
+      "role": "devops_engineer",
+      "model": "gpt-5.3-codex",
+      "responsibilities": [
+        "CI/CD 配置",
+        "部署自动化",
+        "监控告警",
+        "基础设施管理"
+      ]
+    }
+  ],
+  "workflow": {
+    "default": ["architect", "developer", "tester", "devops"],
+    "code_review": ["architect", "tester"],
+    "bug_fix": ["developer", "tester"],
+    "feature_dev": ["architect", "developer", "tester"]
+  },
+  "communication": {
+    "protocol": "async_message",
+    "handoff_enabled": true,
+    "review_required": true
+  }
+}

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Team 管理中心</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">🤖 Agent Team</div>
+        <ul class="nav-menu">
+            <li><a href="{{ url_for('dashboard') }}" class="nav-link">📊 Dashboard</a></li>
+            <li><a href="{{ url_for('agents') }}" class="nav-link">👥 Agents</a></li>
+            <li><a href="{{ url_for('tasks_page') }}" class="nav-link">📋 Tasks</a></li>
+            <li><a href="{{ url_for('settings') }}" class="nav-link">⚙️ Settings</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <div class="hero">
+            <h1>欢迎使用 Agent Team 管理中心</h1>
+            <p>基于 Codex AI 的智能开发团队管理平台</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">进入 Dashboard →</a>
+                <a href="{{ url_for('tasks_page') }}" class="btn btn-secondary">创建新任务</a>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>实时监控</h3>
+                <p>查看团队状态、任务进度和 API 调用统计</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3>Agent 管理</h3>
+                <p>管理多个 AI Agent，分配任务和角色</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>Codex 集成</h3>
+                <p>直接调用 Codex API 进行代码生成和审查</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3>任务协作</h3>
+                <p>创建任务并分配给多个 Agent 协作完成</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>© 2026 Agent Team Dashboard | Powered by Codex AI</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
