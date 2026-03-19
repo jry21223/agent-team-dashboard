@@ -11,11 +11,31 @@ Press CTRL+C to quit
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 142-648-878
-127.0.0.1 - - [19/Mar/2026 19:54:50] "GET / HTTP/1.1" 200 -
- * Detected change in '/home/jerry/.openclaw/workspace/agent-team/dashboard/app.py', reloading
-🚀 Agent Team Dashboard Starting...
-📊 Dashboard URL: http://localhost:5000
-📁 Config File: /home/jerry/.openclaw/workspace/agent-team/dashboard/team_config.json
- * Restarting with stat
- * Debugger is active!
- * Debugger PIN: 142-648-878
+127.0.0.1 - - [19/Mar/2026 20:29:49] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:29:52] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:29:54] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:29:59] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:04] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:09] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:14] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:19] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:24] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:29] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:34] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:39] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:44] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:48] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:48] "GET /static/css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:48] "GET /static/js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [19/Mar/2026 20:30:48] "GET /api/tasks HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:48] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:48] "GET /api/team HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:48] "GET /api/skills HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:53] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:30:58] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:31:03] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:31:08] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:31:13] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:31:18] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:31:23] "GET /api/logs HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:31:28] "GET /api/logs HTTP/1.1" 200 -

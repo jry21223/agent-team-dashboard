@@ -27,7 +27,12 @@ CODEX_CONFIG = {
 # 内存存储（生产环境应使用数据库）
 tasks = []
 logs = []
-agent_status = {}
+agent_status = {
+    'architect': {'status': 'active', 'message': 'Ready', 'updated_at': datetime.now().isoformat()},
+    'developer': {'status': 'active', 'message': 'Ready', 'updated_at': datetime.now().isoformat()},
+    'tester': {'status': 'active', 'message': 'Ready', 'updated_at': datetime.now().isoformat()},
+    'devops': {'status': 'active', 'message': 'Ready', 'updated_at': datetime.now().isoformat()}
+}
 
 def load_team_config():
     """加载团队配置"""
