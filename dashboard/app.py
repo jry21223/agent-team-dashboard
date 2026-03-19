@@ -167,10 +167,25 @@ def api_update_task(task_id):
             task['updated_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             logs.append({
                 'type': 'task_updated',
-                'message': f"Task updated: {task['title']}",
+                'message': f"Task updated: {task['title']} -> {data.get('status')}",
                 'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             })
             return jsonify(task)
+    return jsonify({'error': 'Task not found'}), 404
+
+@app.route('/api/tasks/<int:task_id>', methods=['DELETE'])
+def api_delete_task(task_id):
+    """删除任务 API"""
+    global tasks
+    for i, task in enumerate(tasks):
+        if task['id'] == task_id:
+            deleted_task = tasks.pop(i)
+            logs.append({
+                'type': 'task_deleted',
+                'message': f"Task deleted: {deleted_task['title']}",
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            })
+            return jsonify({'success': True})
     return jsonify({'error': 'Task not found'}), 404
 
 @app.route('/api/codex', methods=['POST'])

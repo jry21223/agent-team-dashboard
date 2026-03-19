@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks - Agent Team</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">🤖 Agent Team</div>
+        <ul class="nav-menu">
+            <li><a href="{{ url_for('dashboard') }}" class="nav-link">📊 Dashboard</a></li>
+            <li><a href="{{ url_for('agents') }}" class="nav-link">👥 Agents</a></li>
+            <li><a href="{{ url_for('tasks_page') }}" class="nav-link active">📋 Tasks</a></li>
+            <li><a href="{{ url_for('settings') }}" class="nav-link">⚙️ Settings</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <h1>📋 任务管理</h1>
+
+        <div class="task-controls">
+            <button class="btn btn-primary" onclick="showCreateTaskModal()">
+                ➕ 创建新任务
+            </button>
+            <div class="task-filters">
+                <button class="filter-btn active" data-filter="all">全部</button>
+                <button class="filter-btn" data-filter="pending">待处理</button>
+                <button class="filter-btn" data-filter="in_progress">进行中</button>
+                <button class="filter-btn" data-filter="completed">已完成</button>
+                <button class="filter-btn" data-filter="failed">已失败</button>
+            </div>
+        </div>
+
+        <div class="tasks-container">
+            <div class="tasks-list" id="tasks-list">
+                <div class="task-empty">
+                    <div class="empty-icon">📋</div>
+                    <div class="empty-text">暂无任务</div>
+                    <div class="empty-hint">点击右上角按钮创建新任务</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Create Task Modal -->
+    <div id="create-task-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>➕ 创建新任务</h2>
+                <button class="modal-close" onclick="closeCreateTaskModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="task-title">任务标题</label>
+                    <input type="text" id="task-title" placeholder="输入任务标题...">
+                </div>
+                <div class="form-group">
+                    <label for="task-description">任务描述</label>
+                    <textarea id="task-description" rows="4" placeholder="详细描述任务内容..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>分配给 Agent</label>
+                    <div class="checkbox-group" id="agent-checkboxes">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCreateTaskModal()">取消</button>
+                <button class="btn btn-primary" onclick="createTask()">创建任务</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        let currentFilter = 'all';
+        let allTasks = [];
+
+        // 加载任务列表
+        async function loadTasks() {
+            const response = await fetch('/api/tasks');
+            allTasks = await response.json();
+            renderTasks(allTasks);
+        }
+
+        // 渲染任务列表
+        function renderTasks(tasks) {
+            const container = document.getElementById('tasks-list');
+            
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div class="task-empty">
+                        <div class="empty-icon">📋</div>
+                        <div class="empty-text">暂无任务</div>
+                        <div class="empty-hint">点击右上角按钮创建新任务</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = tasks.map(task => `
+                <div class="task-card status-${task.status}">
+                    <div class="task-header">
+                        <div class="task-title">${task.title}</div>
+                        <span class="status-badge status-${task.status}">${getStatusText(task.status)}</span>
+                    </div>
+                    <div class="task-description">${task.description || '无描述'}</div>
+                    <div class="task-meta">
+                        <div class="task-agents">
+                            <span class="meta-label">👥 分配给:</span>
+                            <span class="meta-value">${task.assigned_to.join(', ') || '未分配'}</span>
+                        </div>
+                        <div class="task-time">
+                            <span class="meta-label">🕐 创建时间:</span>
+                            <span class="meta-value">${task.created_at}</span>
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        ${task.status === 'pending' ? `
+                            <button class="btn btn-sm btn-primary" onclick="updateTaskStatus(${task.id}, 'in_progress')">
+                                ▶️ 开始任务
+                            </button>
+                        ` : ''}
+                        ${task.status === 'in_progress' ? `
+                            <button class="btn btn-sm btn-success" onclick="updateTaskStatus(${task.id}, 'completed')">
+                                ✅ 完成任务
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="updateTaskStatus(${task.id}, 'failed')">
+                                ❌ 标记失败
+                            </button>
+                        ` : ''}
+                        ${task.status === 'completed' || task.status === 'failed' ? `
+                            <button class="btn btn-sm btn-secondary" onclick="viewTaskResult(${task.id})">
+                                📄 查看结果
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-sm btn-danger" onclick="deleteTask(${task.id})">
+                            🗑️ 删除
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': '待处理',
+                'in_progress': '进行中',
+                'completed': '已完成',
+                'failed': '已失败'
+            };
+            return statusMap[status] || status;
+        }
+
+        // 筛选任务
+        function filterTasks(filter) {
+            currentFilter = filter;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.filter === filter) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // 筛选任务
+            let filtered = allTasks;
+            if (filter !== 'all') {
+                filtered = allTasks.filter(task => task.status === filter);
+            }
+            renderTasks(filtered);
+        }
+
+        // 显示创建任务模态框
+        function showCreateTaskModal() {
+            document.getElementById('create-task-modal').style.display = 'flex';
+            loadAgentsForCheckboxes();
+        }
+
+        // 关闭创建任务模态框
+        function closeCreateTaskModal() {
+            document.getElementById('create-task-modal').style.display = 'none';
+            document.getElementById('task-title').value = '';
+            document.getElementById('task-description').value = '';
+        }
+
+        // 加载 Agent 复选框
+        function loadAgentsForCheckboxes() {
+            fetch('/api/team')
+                .then(r => r.json())
+                .then(team => {
+                    const container = document.getElementById('agent-checkboxes');
+                    container.innerHTML = team.agents.map(agent => `
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="agents" value="${agent.id}">
+                            ${agent.name} (${agent.role})
+                        </label>
+                    `).join('');
+                });
+        }
+
+        // 创建任务
+        async function createTask() {
+            const title = document.getElementById('task-title').value;
+            const description = document.getElementById('task-description').value;
+            const checkboxes = document.querySelectorAll('input[name="agents"]:checked');
+            const assigned_to = Array.from(checkboxes).map(cb => cb.value);
+
+            if (!title) {
+                alert('请输入任务标题');
+                return;
+            }
+
+            const response = await fetch('/api/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title,
+                    description,
+                    assigned_to
+                })
+            });
+
+            if (response.ok) {
+                alert('任务创建成功！');
+                closeCreateTaskModal();
+                loadTasks();
+            } else {
+                alert('任务创建失败');
+            }
+        }
+
+        // 更新任务状态
+        async function updateTaskStatus(taskId, status) {
+            const response = await fetch(`/api/tasks/${taskId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status })
+            });
+
+            if (response.ok) {
+                alert(`任务状态已更新：${getStatusText(status)}`);
+                loadTasks();
+            } else {
+                alert('更新失败');
+            }
+        }
+
+        // 查看任务结果
+        function viewTaskResult(taskId) {
+            const task = allTasks.find(t => t.id === taskId);
+            if (task && task.result) {
+                alert(`任务结果:\n${task.result}`);
+            } else {
+                alert('暂无结果');
+            }
+        }
+
+        // 删除任务
+        async function deleteTask(taskId) {
+            if (!confirm('确定要删除这个任务吗？')) {
+                return;
+            }
+
+            const response = await fetch(`/api/tasks/${taskId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                alert('任务已删除');
+                loadTasks();
+            } else {
+                alert('删除失败');
+            }
+        }
+
+        // 绑定筛选按钮事件
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterTasks(btn.dataset.filter);
+            });
+        });
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTasks();
+        });
+    </script>
+</body>
+</html>
