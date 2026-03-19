@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notion 集成 - Agent Team</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">🤖 Agent Team</div>
+        <ul class="nav-menu">
+            <li><a href="{{ url_for('dashboard') }}" class="nav-link">📊 Dashboard</a></li>
+            <li><a href="{{ url_for('agents') }}" class="nav-link">👥 Agents</a></li>
+            <li><a href="{{ url_for('tasks_page') }}" class="nav-link">📋 Tasks</a></li>
+            <li><a href="{{ url_for('notion') }}" class="nav-link active">📝 Notion</a></li>
+            <li><a href="{{ url_for('settings') }}" class="nav-link">⚙️ Settings</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <h1>📝 Notion 集成</h1>
+
+        <!-- Connection Status -->
+        <div class="notion-section">
+            <div class="connection-card" id="connection-status">
+                <div class="connection-header">
+                    <div class="connection-icon">🔌</div>
+                    <div class="connection-info">
+                        <h3>Notion 连接状态</h3>
+                        <p id="connection-text">未连接</p>
+                    </div>
+                    <div class="connection-status" id="connection-indicator">
+                        <span class="status-dot status-inactive"></span>
+                        <span>离线</span>
+                    </div>
+                </div>
+                
+                <div id="connection-details" style="display: none;">
+                    <div class="detail-row">
+                        <span class="label">👤 用户:</span>
+                        <span class="value" id="user-name">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">📧 邮箱:</span>
+                        <span class="value" id="user-email">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">🏢 工作区:</span>
+                        <span class="value" id="workspace-name">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Key Configuration -->
+        <div class="notion-section">
+            <h2>🔑 API 配置</h2>
+            <div class="config-card">
+                <div class="form-group">
+                    <label for="notion-api-key">Notion Integration Token</label>
+                    <input type="password" id="notion-api-key" placeholder="输入 Notion API Key (ntn_...)">
+                    <small>在 <a href="https://www.notion.so/my-integrations" target="_blank">Notion Integrations</a> 创建 Integration</small>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary" onclick="testConnection()">🔌 测试连接</button>
+                    <button class="btn btn-success" onclick="saveConnection()">💾 保存配置</button>
+                    <button class="btn btn-danger" onclick="disconnect()">❌ 断开连接</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pages -->
+        <div class="notion-section">
+            <h2>📄 我的页面</h2>
+            <div class="pages-container">
+                <div class="pages-header">
+                    <button class="btn btn-sm btn-primary" onclick="loadPages()">🔄 刷新</button>
+                    <button class="btn btn-sm btn-secondary" onclick="showCreatePageModal()">➕ 新建页面</button>
+                </div>
+                <div class="pages-grid" id="pages-grid">
+                    <div class="page-empty">点击"刷新"加载页面</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Databases -->
+        <div class="notion-section">
+            <h2>🗄️ 数据库</h2>
+            <div class="databases-container">
+                <div class="databases-header">
+                    <button class="btn btn-sm btn-primary" onclick="loadDatabases()">🔄 刷新</button>
+                </div>
+                <div class="databases-grid" id="databases-grid">
+                    <div class="db-empty">点击"刷新"加载数据库</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="notion-section">
+            <h2>⚡ 快速操作</h2>
+            <div class="quick-actions">
+                <div class="action-card" onclick="syncTaskToNotion()">
+                    <div class="action-icon">📋</div>
+                    <div class="action-title">同步任务</div>
+                    <div class="action-desc">将当前任务同步到 Notion</div>
+                </div>
+                <div class="action-card" onclick="createMeetingNotes()">
+                    <div class="action-icon">📝</div>
+                    <div class="action-title">会议记录</div>
+                    <div class="action-desc">创建会议记录模板</div>
+                </div>
+                <div class="action-card" onclick="exportAgentLogs()">
+                    <div class="action-icon">📊</div>
+                    <div class="action-title">导出日志</div>
+                    <div class="action-desc">导出 Agent 运行日志</div>
+                </div>
+                <div class="action-card" onclick="createDatabase()">
+                    <div class="action-icon">🗄️</div>
+                    <div class="action-title">创建数据库</div>
+                    <div class="action-desc">创建任务管理数据库</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Create Page Modal -->
+    <div id="create-page-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>➕ 创建新页面</h2>
+                <button class="modal-close" onclick="closeCreatePageModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="parent-page">父页面</label>
+                    <select id="parent-page">
+                        <option value="">选择父页面...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="page-title">页面标题</label>
+                    <input type="text" id="page-title" placeholder="输入页面标题...">
+                </div>
+                <div class="form-group">
+                    <label for="page-content">页面内容</label>
+                    <textarea id="page-content" rows="4" placeholder="输入页面内容..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCreatePageModal()">取消</button>
+                <button class="btn btn-primary" onclick="createPage()">创建页面</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        let notionConnected = false;
+        let pages = [];
+        let databases = [];
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            checkConnection();
+        });
+
+        // 检查连接状态
+        async function checkConnection() {
+            const response = await fetch('/api/notion/status');
+            const status = await response.json();
+            
+            if (status.connected) {
+                notionConnected = true;
+                updateConnectionStatus(status);
+                loadPages();
+                loadDatabases();
+            } else {
+                notionConnected = false;
+                updateConnectionStatus({connected: false});
+            }
+        }
+
+        // 更新连接状态显示
+        function updateConnectionStatus(status) {
+            const indicator = document.getElementById('connection-indicator');
+            const details = document.getElementById('connection-details');
+            const text = document.getElementById('connection-text');
+            
+            if (status.connected) {
+                indicator.innerHTML = '<span class="status-dot status-active"></span><span>已连接</span>';
+                details.style.display = 'block';
+                text.textContent = '已连接到 Notion';
+                
+                document.getElementById('user-name').textContent = status.user?.name || '-';
+                document.getElementById('user-email').textContent = status.user?.email || '-';
+                document.getElementById('workspace-name').textContent = status.workspace || '-';
+            } else {
+                indicator.innerHTML = '<span class="status-dot status-inactive"></span><span>未连接</span>';
+                details.style.display = 'none';
+                text.textContent = '未连接到 Notion';
+            }
+        }
+
+        // 测试连接
+        async function testConnection() {
+            const apiKey = document.getElementById('notion-api-key').value;
+            
+            if (!apiKey) {
+                alert('请输入 API Key');
+                return;
+            }
+            
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '🔌 测试中...';
+            
+            const response = await fetch('/api/notion/test', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({api_key: apiKey})
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert(`✅ 连接成功!\n用户：${result.user?.name}\n工作区：${result.workspace}`);
+                updateConnectionStatus(result);
+            } else {
+                alert(`❌ 连接失败:\n${result.error}`);
+            }
+            
+            btn.disabled = false;
+            btn.textContent = '🔌 测试连接';
+        }
+
+        // 保存连接
+        async function saveConnection() {
+            const apiKey = document.getElementById('notion-api-key').value;
+            
+            if (!apiKey) {
+                alert('请输入 API Key');
+                return;
+            }
+            
+            const response = await fetch('/api/notion/connect', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({api_key: apiKey})
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('✅ Notion 连接已保存!');
+                checkConnection();
+            } else {
+                alert(`❌ 保存失败:\n${result.error}`);
+            }
+        }
+
+        // 断开连接
+        async function disconnect() {
+            if (!confirm('确定要断开 Notion 连接吗？')) return;
+            
+            const response = await fetch('/api/notion/disconnect', {
+                method: 'POST'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('✅ 已断开 Notion 连接');
+                checkConnection();
+            }
+        }
+
+        // 加载页面
+        async function loadPages() {
+            if (!notionConnected) {
+                alert('请先连接 Notion');
+                return;
+            }
+            
+            const grid = document.getElementById('pages-grid');
+            grid.innerHTML = '<div class="loading">🔄 加载中...</div>';
+            
+            const response = await fetch('/api/notion/pages');
+            pages = await response.json();
+            
+            if (pages.length === 0) {
+                grid.innerHTML = '<div class="page-empty">暂无页面</div>';
+                return;
+            }
+            
+            grid.innerHTML = pages.map(page => `
+                <div class="page-card">
+                    <div class="page-icon">${page.icon ? '📄' : '📄'}</div>
+                    <div class="page-info">
+                        <div class="page-title">${page.title}</div>
+                        <div class="page-meta">${page.last_edited_time ? '最后编辑：' + page.last_edited_time.split('T')[0] : ''}</div>
+                    </div>
+                    <a href="${page.url}" target="_blank" class="btn btn-sm btn-secondary">打开 →</a>
+                </div>
+            `).join('');
+            
+            // 更新父页面选择框
+            const parentSelect = document.getElementById('parent-page');
+            parentSelect.innerHTML = '<option value="">选择父页面...</option>' + 
+                pages.map(page => `<option value="${page.id}">${page.title}</option>`).join('');
+        }
+
+        // 加载数据库
+        async function loadDatabases() {
+            if (!notionConnected) {
+                alert('请先连接 Notion');
+                return;
+            }
+            
+            const grid = document.getElementById('databases-grid');
+            grid.innerHTML = '<div class="loading">🔄 加载中...</div>';
+            
+            const response = await fetch('/api/notion/databases');
+            databases = await response.json();
+            
+            if (databases.length === 0) {
+                grid.innerHTML = '<div class="db-empty">暂无数据库</div>';
+                return;
+            }
+            
+            grid.innerHTML = databases.map(db => `
+                <div class="db-card">
+                    <div class="db-icon">🗄️</div>
+                    <div class="db-info">
+                        <div class="db-title">${db.title}</div>
+                        <div class="db-desc">${db.description || '无描述'}</div>
+                    </div>
+                    <a href="${db.url}" target="_blank" class="btn btn-sm btn-secondary">打开 →</a>
+                </div>
+            `).join('');
+        }
+
+        // 显示创建页面模态框
+        function showCreatePageModal() {
+            if (!notionConnected) {
+                alert('请先连接 Notion');
+                return;
+            }
+            document.getElementById('create-page-modal').style.display = 'flex';
+            loadPages(); // 加载父页面列表
+        }
+
+        // 关闭创建页面模态框
+        function closeCreatePageModal() {
+            document.getElementById('create-page-modal').style.display = 'none';
+        }
+
+        // 创建页面
+        async function createPage() {
+            const parentId = document.getElementById('parent-page').value;
+            const title = document.getElementById('page-title').value;
+            const content = document.getElementById('page-content').value;
+            
+            if (!title) {
+                alert('请输入页面标题');
+                return;
+            }
+            
+            const response = await fetch('/api/notion/page', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    parent_id: parentId,
+                    title: title,
+                    content: content
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('✅ 页面创建成功!');
+                closeCreatePageModal();
+                loadPages();
+            } else {
+                alert(`❌ 创建失败:\n${result.error}`);
+            }
+        }
+
+        // 快速操作函数
+        function syncTaskToNotion() {
+            alert('📋 任务同步功能开发中...');
+        }
+
+        function createMeetingNotes() {
+            alert('📝 会议记录功能开发中...');
+        }
+
+        function exportAgentLogs() {
+            alert('📊 日志导出功能开发中...');
+        }
+
+        function createDatabase() {
+            alert('🗄️ 数据库创建功能开发中...');
+        }
+    </script>
+</body>
+</html>

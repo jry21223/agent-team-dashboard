@@ -221,6 +221,125 @@ def api_update_agent_status(agent_id):
     })
     return jsonify(agent_status[agent_id])
 
+@app.route('/notion')
+def notion():
+    """Notion 集成页面"""
+    return render_template('notion.html')
+
+# Notion 服务
+NOTION_CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'notion_config.json')
+
+def load_notion_config():
+    """加载 Notion 配置"""
+    try:
+        with open(NOTION_CONFIG_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except:
+        return {'api_key': '', 'connected': False}
+
+def save_notion_config(config):
+    """保存 Notion 配置"""
+    with open(NOTION_CONFIG_FILE, 'w', encoding='utf-8') as f:
+        json.dump(config, f, indent=2)
+
+@app.route('/api/notion/status')
+def api_notion_status():
+    """获取 Notion 连接状态"""
+    from notion_service import get_notion_service, init_notion_service
+    
+    config = load_notion_config()
+    
+    if not config.get('connected') or not config.get('api_key'):
+        return jsonify({'connected': False})
+    
+    service = init_notion_service(config['api_key'])
+    status = service.test_connection()
+    
+    return jsonify(status)
+
+@app.route('/api/notion/test', methods=['POST'])
+def api_notion_test():
+    """测试 Notion 连接"""
+    from notion_service import NotionService
+    
+    data = request.json
+    api_key = data.get('api_key', '')
+    
+    if not api_key:
+        return jsonify({'success': False, 'error': 'API Key 不能为空'})
+    
+    service = NotionService(api_key)
+    result = service.test_connection()
+    
+    return jsonify(result)
+
+@app.route('/api/notion/connect', methods=['POST'])
+def api_notion_connect():
+    """连接 Notion"""
+    from notion_service import init_notion_service
+    
+    data = request.json
+    api_key = data.get('api_key', '')
+    
+    if not api_key:
+        return jsonify({'success': False, 'error': 'API Key 不能为空'})
+    
+    service = init_notion_service(api_key)
+    result = service.test_connection()
+    
+    if result.get('success'):
+        save_notion_config({'api_key': api_key, 'connected': True})
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False, 'error': result.get('error', '连接失败')})
+
+@app.route('/api/notion/disconnect', methods=['POST'])
+def api_notion_disconnect():
+    """断开 Notion 连接"""
+    save_notion_config({'api_key': '', 'connected': False})
+    return jsonify({'success': True})
+
+@app.route('/api/notion/pages')
+def api_notion_pages():
+    """获取 Notion 页面列表"""
+    from notion_service import get_notion_service
+    
+    service = get_notion_service()
+    if not service:
+        return jsonify([])
+    
+    pages = service.get_user_pages()
+    return jsonify(pages)
+
+@app.route('/api/notion/databases')
+def api_notion_databases():
+    """获取 Notion 数据库列表"""
+    from notion_service import get_notion_service
+    
+    service = get_notion_service()
+    if not service:
+        return jsonify([])
+    
+    databases = service.get_databases()
+    return jsonify(databases)
+
+@app.route('/api/notion/page', methods=['POST'])
+def api_notion_create_page():
+    """创建 Notion 页面"""
+    from notion_service import get_notion_service
+    
+    data = request.json
+    parent_id = data.get('parent_id', '')
+    title = data.get('title', '')
+    content = data.get('content', '')
+    
+    service = get_notion_service()
+    if not service:
+        return jsonify({'success': False, 'error': 'Notion 未连接'})
+    
+    result = service.create_page(parent_id, title, content)
+    return jsonify(result)
+
 @app.route('/api/orchestrate', methods=['POST'])
 async def api_orchestrate():
     """使用 agent-team-orchestration 技能编排任务"""

@@ -1005,3 +1005,208 @@ body::before {
         justify-content: center;
     }
 }
+
+/* Notion Page */
+.notion-section {
+    background: rgba(26, 32, 53, 0.8);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-primary);
+}
+
+.notion-section h2 {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1.5rem;
+}
+
+.connection-card {
+    background: rgba(10, 14, 26, 0.8);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    border: 1px solid var(--border-primary);
+}
+
+.connection-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.connection-icon {
+    font-size: 3rem;
+}
+
+.connection-info h3 {
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.connection-info p {
+    color: var(--text-secondary);
+}
+
+.connection-status {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+.config-card {
+    background: rgba(10, 14, 26, 0.8);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    border: 1px solid var(--border-primary);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.pages-container,
+.databases-container {
+    background: rgba(10, 14, 26, 0.8);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    border: 1px solid var(--border-primary);
+}
+
+.pages-header,
+.databases-header {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.pages-grid,
+.databases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.page-card,
+.db-card {
+    background: rgba(26, 32, 53, 0.8);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    border: 1px solid var(--border-primary);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s;
+}
+
+.page-card:hover,
+.db-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-glow);
+    box-shadow: var(--shadow-glow);
+}
+
+.page-icon,
+.db-icon {
+    font-size: 2.5rem;
+}
+
+.page-info,
+.db-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.page-title,
+.db-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.page-meta,
+.db-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.page-empty,
+.db-empty,
+.loading {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+    grid-column: 1 / -1;
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.action-card {
+    background: rgba(10, 14, 26, 0.8);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    border: 1px solid var(--border-primary);
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+}
+
+.action-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--border-glow);
+    box-shadow: var(--shadow-glow);
+}
+
+.action-icon {
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
+}
+
+.action-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.action-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+    .connection-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .connection-status {
+        margin-left: 0;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .pages-grid,
+    .databases-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+}

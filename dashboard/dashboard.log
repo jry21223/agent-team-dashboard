@@ -11,4 +11,4 @@ Press CTRL+C to quit
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 142-648-878
-127.0.0.1 - - [19/Mar/2026 20:38:23] "GET /tasks HTTP/1.1" 200 -
+127.0.0.1 - - [19/Mar/2026 20:53:40] "GET /notion HTTP/1.1" 200 -
