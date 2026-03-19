@@ -316,6 +316,224 @@ body {
     margin-top: 2rem;
 }
 
+/* Agents Page */
+.agents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.agent-card {
+    background: var(--card-bg);
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    transition: transform 0.3s;
+}
+
+.agent-card:hover {
+    transform: translateY(-4px);
+}
+
+.agent-header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.agent-avatar {
+    font-size: 3rem;
+}
+
+.agent-info h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
+}
+
+.agent-id {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    background: var(--bg-color);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.agent-details {
+    margin-bottom: 1rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row .label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.detail-row .value {
+    font-weight: 600;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-active {
+    background: var(--success-color);
+}
+
+.status-busy {
+    background: var(--warning-color);
+}
+
+.status-inactive {
+    background: var(--text-muted);
+}
+
+.agent-responsibilities {
+    margin-bottom: 1rem;
+}
+
+.agent-responsibilities h4 {
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.agent-responsibilities ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.agent-responsibilities li {
+    padding: 0.25rem 0;
+    font-size: 0.9rem;
+}
+
+.agent-responsibilities li:before {
+    content: "• ";
+    color: var(--primary-color);
+}
+
+.agent-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    color: white;
+}
+
+/* Orchestration Section */
+.orchestration-section {
+    background: var(--card-bg);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.orchestration-form {
+    margin-top: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+/* Workflow Section */
+.workflow-section {
+    background: var(--card-bg);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.workflow-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding: 2rem;
+    background: var(--bg-color);
+    border-radius: 0.5rem;
+    overflow-x: auto;
+}
+
+.workflow-step {
+    text-align: center;
+    min-width: 100px;
+}
+
+.step-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.step-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.workflow-arrow {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .navbar {
@@ -333,5 +551,18 @@ body {
 
     .dashboard-grid {
         grid-template-columns: 1fr;
+    }
+
+    .agents-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .workflow-diagram {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .workflow-arrow {
+        transform: rotate(90deg);
     }
 }

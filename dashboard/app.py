@@ -201,6 +201,53 @@ def api_update_agent_status(agent_id):
     })
     return jsonify(agent_status[agent_id])
 
+@app.route('/api/orchestrate', methods=['POST'])
+async def api_orchestrate():
+    """使用 agent-team-orchestration 技能编排任务"""
+    data = request.json
+    task_description = data.get('task', '')
+    team_config = data.get('team', ['architect', 'developer', 'tester'])
+    
+    logs.append({
+        'type': 'orchestration',
+        'message': f"Starting multi-agent task: {task_description[:50]}...",
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    })
+    
+    # 模拟多 Agent 协作流程
+    workflow_steps = []
+    
+    # 步骤 1: Architect 设计
+    workflow_steps.append({
+        'step': 1,
+        'agent': 'architect',
+        'action': 'design',
+        'status': 'pending'
+    })
+    
+    # 步骤 2: Developer 实现
+    workflow_steps.append({
+        'step': 2,
+        'agent': 'developer',
+        'action': 'implement',
+        'status': 'pending'
+    })
+    
+    # 步骤 3: Tester 测试
+    workflow_steps.append({
+        'step': 3,
+        'agent': 'tester',
+        'action': 'test',
+        'status': 'pending'
+    })
+    
+    return jsonify({
+        'task_id': len(tasks) + 1,
+        'description': task_description,
+        'workflow': workflow_steps,
+        'status': 'orchestrating'
+    })
+
 if __name__ == '__main__':
     print("🚀 Agent Team Dashboard Starting...")
     print(f"📊 Dashboard URL: http://localhost:5000")

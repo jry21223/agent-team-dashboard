@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agents - Agent Team</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">🤖 Agent Team</div>
+        <ul class="nav-menu">
+            <li><a href="{{ url_for('dashboard') }}" class="nav-link">📊 Dashboard</a></li>
+            <li><a href="{{ url_for('agents') }}" class="nav-link active">👥 Agents</a></li>
+            <li><a href="{{ url_for('tasks_page') }}" class="nav-link">📋 Tasks</a></li>
+            <li><a href="{{ url_for('settings') }}" class="nav-link">⚙️ Settings</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <h1>👥 Agent 团队管理</h1>
+
+        <div class="agents-grid">
+            {% for agent in team.agents %}
+            <div class="agent-card">
+                <div class="agent-header">
+                    <div class="agent-avatar">🤖</div>
+                    <div class="agent-info">
+                        <h3>{{ agent.name }}</h3>
+                        <span class="agent-id">{{ agent.id }}</span>
+                    </div>
+                </div>
+                
+                <div class="agent-details">
+                    <div class="detail-row">
+                        <span class="label">角色:</span>
+                        <span class="value">{{ agent.role }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">模型:</span>
+                        <span class="value">{{ agent.model }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">状态:</span>
+                        <span class="value status-indicator" id="status-{{ agent.id }}">
+                            <span class="status-dot status-active"></span>
+                            活跃
+                        </span>
+                    </div>
+                </div>
+
+                <div class="agent-responsibilities">
+                    <h4>职责</h4>
+                    <ul>
+                        {% for responsibility in agent.responsibilities %}
+                        <li>{{ responsibility }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="agent-actions">
+                    <button class="btn btn-sm btn-primary" onclick="updateAgentStatus('{{ agent.id }}', 'active')">
+                        设为活跃
+                    </button>
+                    <button class="btn btn-sm btn-secondary" onclick="updateAgentStatus('{{ agent.id }}', 'busy')">
+                        设为忙碌
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="updateAgentStatus('{{ agent.id }}', 'inactive')">
+                        设为离线
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="orchestration-section">
+            <h2>🎯 多 Agent 协作</h2>
+            <p>使用 agent-team-orchestration 技能编排多 Agent 协作任务</p>
+            
+            <div class="orchestration-form">
+                <div class="form-group">
+                    <label for="task-description">任务描述</label>
+                    <textarea id="task-description" rows="4" placeholder="描述需要多个 Agent 协作完成的任务..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>参与 Agent</label>
+                    <div class="checkbox-group">
+                        {% for agent in team.agents %}
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="agents" value="{{ agent.id }}" checked>
+                            {{ agent.name }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="startOrchestration()">
+                    🚀 开始协作任务
+                </button>
+            </div>
+        </div>
+
+        <div class="workflow-section">
+            <h2>📊 工作流程</h2>
+            <div class="workflow-diagram">
+                <div class="workflow-step">
+                    <div class="step-icon">📥</div>
+                    <div class="step-label">Inbox</div>
+                </div>
+                <div class="workflow-arrow">→</div>
+                <div class="workflow-step">
+                    <div class="step-icon">📤</div>
+                    <div class="step-label">Assigned</div>
+                </div>
+                <div class="workflow-arrow">→</div>
+                <div class="workflow-step">
+                    <div class="step-icon">🔧</div>
+                    <div class="step-label">In Progress</div>
+                </div>
+                <div class="workflow-arrow">→</div>
+                <div class="workflow-step">
+                    <div class="step-icon">👀</div>
+                    <div class="step-label">Review</div>
+                </div>
+                <div class="workflow-arrow">→</div>
+                <div class="workflow-step">
+                    <div class="step-icon">✅</div>
+                    <div class="step-label">Done</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        async function updateAgentStatus(agentId, status) {
+            const response = await fetch(`/api/agents/${agentId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: status,
+                    updated_at: new Date().toISOString()
+                })
+            });
+            
+            if (response.ok) {
+                const statusEl = document.getElementById(`status-${agentId}`);
+                const statusText = status === 'active' ? '活跃' : status === 'busy' ? '忙碌' : '离线';
+                const statusClass = status === 'active' ? 'status-active' : status === 'busy' ? 'status-busy' : 'status-inactive';
+                
+                statusEl.innerHTML = `
+                    <span class="status-dot ${statusClass}"></span>
+                    ${statusText}
+                `;
+                
+                alert(`Agent ${agentId} 状态已更新为：${statusText}`);
+            }
+        }
+
+        async function startOrchestration() {
+            const description = document.getElementById('task-description').value;
+            const checkboxes = document.querySelectorAll('input[name="agents"]:checked');
+            const agents = Array.from(checkboxes).map(cb => cb.value);
+            
+            if (!description) {
+                alert('请输入任务描述');
+                return;
+            }
+            
+            if (agents.length < 2) {
+                alert('请至少选择 2 个 Agent 进行协作');
+                return;
+            }
+            
+            const response = await fetch('/api/orchestrate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    task: description,
+                    team: agents
+                })
+            });
+            
+            const result = await response.json();
+            alert(`协作任务已创建！\n任务 ID: #${result.task_id}\n参与 Agent: ${agents.join(', ')}`);
+            
+            // 跳转到任务页面
+            window.location.href = '/tasks';
+        }
+    </script>
+</body>
+</html>

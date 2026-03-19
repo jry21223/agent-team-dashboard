@@ -12,3 +12,10 @@ Press CTRL+C to quit
  * Debugger is active!
  * Debugger PIN: 142-648-878
 127.0.0.1 - - [19/Mar/2026 19:54:50] "GET / HTTP/1.1" 200 -
+ * Detected change in '/home/jerry/.openclaw/workspace/agent-team/dashboard/app.py', reloading
+🚀 Agent Team Dashboard Starting...
+📊 Dashboard URL: http://localhost:5000
+📁 Config File: /home/jerry/.openclaw/workspace/agent-team/dashboard/team_config.json
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 142-648-878
